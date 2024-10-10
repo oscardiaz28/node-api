@@ -11,24 +11,19 @@ app.use(express.json());
 const calculateOrderAmount = (items) => {
   // Calculate the order total on the server to prevent
   // people from directly manipulating the amount on the client
-  let total = 0;
-  items.forEach((item) => {
-    total += item.amount;
-  });
-  return total;
+  console.log(items[0].amount)
+  return items[0].amount;
 };
 
 app.post("/create-payment-intent", async (req, res) => {
-  const { items } = req.body;
+  const { items, currency } = req.body;
+
   // Create a PaymentIntent with the order amount and currency
   const paymentIntent = await stripe.paymentIntents.create({
     amount: calculateOrderAmount(items),
-    currency: "usd",
+    currency: currency,
     // In the latest version of the API, specifying the `automatic_payment_methods` parameter is optional because Stripe enables its functionality by default.
-    automatic_payment_methods: {
-      enabled: true,
-    },
-  });
+  }); 
 
   res.send({
     clientSecret: paymentIntent.client_secret,
@@ -43,4 +38,4 @@ app.get("/test", async(req, res) => {
 
 const PORT = process.env.PORT || 5000
 app.set('port', process.env.PORT)
-app.listen(PORT, () => console.log("Node server listening on port ${PORT}!"));
+app.listen(PORT, () => console.log("Node server listening on port " + PORT));
